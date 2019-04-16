@@ -10,7 +10,8 @@ from PIL import Image
 import os
 
 
-for pic in os.listdir('pics'):
+os.chdir("../../pics")
+for pic in os.listdir('./'):
     print(pic)
     
         
