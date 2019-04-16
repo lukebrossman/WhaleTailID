@@ -7,6 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 import sys
+from PIL import Image
+import os
 
 def minpt():
     batch_size = 128
@@ -48,16 +50,49 @@ def minpt():
     print('Test loss:', score[0])
     print('Test Accuracy:', score[1])
 
+
+
+pic_arr = []
+cnt = 0
+f = open("./image_data", "a")
+
+def get_arrays(welp):
+
+    os.chdir("./train")
+    #for pic in welp[1:]:
+    image = Image.open(welp[0][0]) 
+    arr = np.array(image)
+    image.close()
+    arr[20,30]
+    print(arr, "end")
+    arr = np.array2string(arr)
+    print(arr,"end")
+        #f.write(np.array2string(arr))
+        #pic_arr.append(arr)
+    f.close()
+    return pic_arr
+
+
+
+
+
+
+
+
+
+
 def FileToArray(file):
-  with open(file, 'rU') as f:  
-    reader = csv.reader(f)
-    data = list(list(rec) for rec in csv.reader(f, delimiter=';')) #reads csv into a list of lists
+    with open(file, 'rU') as f:  
+        reader = csv.reader(f)
+    data = list(list(rec) for rec in csv.reader(f, delimiter=',')) #reads csv into a list of lists
     return data
 
 def main():
     file = sys.argv[1]
     blerble = FileToArray(file)
     print(blerble)
+    arrays = get_arrays(blerble)
+    #print(arrays)
 
 if __name__ == "__main__":
     main()
