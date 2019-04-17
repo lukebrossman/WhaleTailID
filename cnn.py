@@ -16,7 +16,10 @@ img_rows, img_cols = 28, 28
 #the data, split between train and test sets
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-x_train = x_train.reshape(60000,28,28,1)
+print(x_train[0])
+print(y_train)
+
+"""x_train = x_train.reshape(60000,28,28,1)
 x_test = x_test.reshape(10000,28,28,1)
 print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
@@ -43,4 +46,4 @@ model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimi
 model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1, validation_data=(x_test, y_test))
 score = model.evaluate(x_test,y_test, verbose=0)
 print('Test loss:', score[0])
-print('Test Accuracy:', score[1])
+print('Test Accuracy:', score[1])"""
