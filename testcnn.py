@@ -18,8 +18,8 @@ import os
 
 
 image = Image.open('test.jpg')
-arr = np.array(image)
-arr[20,30]
+#arr = np.array(image)
+#arr[20,30]
 
 num_classes = 10
 epochs = 12
@@ -29,7 +29,7 @@ img_rows, img_cols = 28, 28
 
 #the data, split between train and test sets
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
-print(arr)
-plt.imshow(arr)
+#print(arr)
+plt.imshow(image)
 #plt.imshow("pics/0a0c1df99.jpg")
 plt.show()
