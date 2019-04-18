@@ -48,6 +48,7 @@ def get_arrays(pictures):
     i = 0
     print("go fuk yourself")
     for pic in pictures:
+        i += 1
         image = Image.open(pic)
         image = image.resize((140,140), Image.ANTIALIAS)
         arr = np.array(image)
@@ -56,8 +57,6 @@ def get_arrays(pictures):
         pic_arr.append(arr)
         if i % 500 == 0:
             print(i)
-    
-    
     return pic_arr
 
 def rgb2gray(rgb):
