@@ -14,11 +14,11 @@ import os
 
 def train(x_train, y_train):
     num_classes = len(set(y_train))
-    img_col, img_row = 60, 60
+    img_col, img_row = 140, 140
     x_test = x_train[-1]
     y_test = y_train[-1]
-    x_train = x_train.reshape(1999, 60,60,1)
-    x_test = x_test.reshape(1,60,60,1)
+    #x_train = x_train.reshape(1999, 140,140,1)
+    #x_test = x_test.reshape(1,60,60,1)
     y_train = keras.utils.to_categorical(y_train, num_classes)
     y_test = keras.utils.to_categorical(y_test, num_classes)
           
@@ -36,32 +36,27 @@ def train(x_train, y_train):
   
     model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adadelta(), metrics=['accuracy'])
   
-    model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1, validation_data=(x_test, y_test))
+    model.fit(x_train, y_train, batch_size=10, epochs=10, verbose=1, validation_data=(x_test, y_test))
     score = model.evaluate(x_test,y_test, verbose=0)
     print('Test loss:', score[0])
     print('Test Accuracy:', score[1])
 
-
-
-
-
-
-
 def get_arrays(welp):
-    pic_arr = []
+    pic_arr = np.empty([2000])
     os.chdir("./train")
     i = 0
     print("go fuk yourself")
-    for x in range(1,2000):
-        i += 1
-        image = Image.open(welp[x][0])
-        image = image.resize((60,60), Image.ANTIALIAS)
+    print(welp[1:2])
+    for pic, i in zip(welp[1:], range(2000)):
+        image = Image.open(pic[0])
+        image = image.resize((140,140), Image.ANTIALIAS)
         arr = np.array(image)
         arr = rgb2gray(arr)
         image.close()
-        pic_arr.append(arr)
+        np.append(pic_arr, arr)
         if i % 500 == 0:
             print(i)
+    
     
     return pic_arr
 
@@ -74,12 +69,25 @@ def FileToArray(file):
         data = list(list(rec) for rec in csv.reader(f, delimiter=',')) #reads csv into a list of lists
     return data
 
+def integerizeclasses(labels):
+    newlabels = []
+    for num in labels:
+        if num[1] == "new_whale":
+            newlabels.append(0)
+        else:
+            print(num[1][2:])
+            temp = float.fromhex(num[1][2:])
+            newlabels.append(int(temp))
+    print(newlabels)
+    return newlabels
+
 def main():
     file = sys.argv[1]
     blerble = FileToArray(file)
-    arrays = get_arrays(blerble)
-    labels = [i[1] for i in blerble]
-    train(arrays, labels)
+    blerble = integerizeclasses(blerble[1:])
+    #arrays = get_arrays(blerble)
+    #labels = [i[1] for i in blerble]
+    #train(arrays, labels)
 
 if __name__ == "__main__":
     main()
