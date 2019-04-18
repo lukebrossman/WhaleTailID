@@ -12,14 +12,15 @@ import os
 
 
 
-def train(x_train, y_train):
-    num_classes = len(set(y_train))
+def train(x_train, labels):
+    num_classes = len(set(labels))
     img_col, img_row = 140, 140
     x_test = x_train[-1]
-    y_test = y_train[-1]
+    y_test = labels[-1]
     #x_train = x_train.reshape(1999, 140,140,1)
     #x_test = x_test.reshape(1,60,60,1)
-    y_train = keras.utils.to_categorical(y_train, num_classes)
+    print(labels, num_classes)
+    y_train = keras.utils.to_categorical(labels, num_classes)
     y_test = keras.utils.to_categorical(y_test, num_classes)
           
     model = Sequential()
@@ -41,19 +42,18 @@ def train(x_train, y_train):
     print('Test loss:', score[0])
     print('Test Accuracy:', score[1])
 
-def get_arrays(welp):
-    pic_arr = np.empty([2000])
+def get_arrays(pictures):
+    pic_arr = []
     os.chdir("./train")
     i = 0
     print("go fuk yourself")
-    print(welp[1:2])
-    for pic, i in zip(welp[1:], range(2000)):
-        image = Image.open(pic[0])
+    for pic in pictures:
+        image = Image.open(pic)
         image = image.resize((140,140), Image.ANTIALIAS)
         arr = np.array(image)
         arr = rgb2gray(arr)
         image.close()
-        np.append(pic_arr, arr)
+        pic_arr.append(arr)
         if i % 500 == 0:
             print(i)
     
@@ -75,19 +75,36 @@ def integerizeclasses(labels):
         if num[1] == "new_whale":
             newlabels.append(0)
         else:
-            print(num[1][2:])
             temp = float.fromhex(num[1][2:])
             newlabels.append(int(temp))
+    return newlabels
+
+def normalizeLabels(labels):
+    newlabels = []
+    temp = list(set(labels))
+    temp.sort()
+    for label in labels:
+        newlabel = temp.index(label)
+        newlabels.append(newlabel)
     print(newlabels)
     return newlabels
+
+def createnewtrainfile(pics, labels):
+    sys.stdout = open("newtrain.csv", "w")
+    for pic, label in zip(pics, labels):
+        print(pic,",", label)
+
 
 def main():
     file = sys.argv[1]
     blerble = FileToArray(file)
-    blerble = integerizeclasses(blerble[1:])
-    #arrays = get_arrays(blerble)
-    #labels = [i[1] for i in blerble]
-    #train(arrays, labels)
+    pics = [i[0] for i in blerble]
+    labels = [i[1] for i in blerble]
+    #labels = integerizeclasses(blerble[1:])
+    #labels = normalizeLabels(labels)
+    #createnewtrainfile(pics, labels)
+    features = get_arrays(pics)
+    train(features, labels)
 
 if __name__ == "__main__":
     main()
