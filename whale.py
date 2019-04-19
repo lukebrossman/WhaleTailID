@@ -15,56 +15,44 @@ import os
 def train(x_train, labels):
     num_classes = len(set(labels))
     img_col, img_row = 60, 60
-   # x_test = x_train[-1]
-    y_test = labels[-1]
     x_test = x_train[-60:]
+    y_test = labels[-1]
     x_train = x_train.reshape(2000, 60,60,1)
-    
-    
     x_test = x_test.reshape(1,60,60,1)
-    #print(labels, num_classes)
+    print(labels, num_classes)
     y_train = keras.utils.to_categorical(labels, num_classes)
-    y_test = keras.utils.to_categorical(y_test,num_classes)
-         
+    y_test = keras.utils.to_categorical(y_test, num_classes)
+          
     model = Sequential()
-    model.add(Conv2D(32, kernel_size=3, activation='relu', input_shape=(60,60,1)))
+    model.add(Conv2D(32, kernel_size=(3,3), activation='relu', input_shape=(60,60,1)))
       
-    model.add(Conv2D(64,3, activation='relu'))
-    #model.add(MaxPooling2D(pool_size=(2,2)))
-    #model.add(Dropout(0.25))
+    model.add(Conv2D(64,(3,3), activation='relu'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Dropout(0.25))
     model.add(Flatten())
-    #model.add(Dense(128, activation='relu'))
-    #model.add(Dropout(0.5))
+    model.add(Dense(128, activation='relu'))
+    model.add(Dropout(0.5))
     model.add(Dense(num_classes, activation='softmax'))
-  
   
     model.compile(loss=keras.losses.binary_crossentropy, optimizer=keras.optimizers.Adadelta(), metrics=['accuracy'])
   
-    model.fit(x_train, y_train, batch_size=1, epochs=1, verbose=0)
+    model.fit(x_train, y_train, batch_size=1, epochs=1, verbose=1) #, validation_data=(x_test, y_test)
     score = model.evaluate(x_test,y_test, verbose=0)
-    
-    print('Test loss:', score[0])
+    print('Test loss:', score[0]) 
     print('Test Accuracy:', score[1])
-    
-    #print(y_train)
-    #print(y_test)
-
-
 
 def get_arrays(pictures):
-    pic_arr = np.empty([120000,60])
+    pic_arr = np.empty([120000, 60])
     os.chdir("./train")
     i = 0
     print("go fuk yourself")
     for pic in pictures[:2000]:
         i += 1
-
         image = Image.open(pic)
         image = image.resize((60,60), Image.ANTIALIAS)
         arr = np.array(image)
         arr = rgb2gray(arr)
         image.close()
-        #pic_arr.append(arr)
         np.append(pic_arr, arr)
         if i % 500 == 0:
             print(i)
@@ -108,15 +96,14 @@ def createnewtrainfile(pics, labels):
 def main():
     file = sys.argv[1]
     blerble = FileToArray(file)
-    pics = [i[0] for i in blerble]
+    pics = [i[0] for i in blerble[1:]]
     labels = [i[1] for i in blerble]
-    labels = labels[:2000]
-   # labels = integerizeclasses(blerble[1:])
+    labels = integerizeclasses(blerble[1:])
+    #labels = labels[:2000]
     labels = normalizeLabels(labels)
-    #createnewtrainfile(pics[1:], labels)
-    
-    features = get_arrays(pics)
-    train(features, labels)
+    createnewtrainfile(pics, labels)
+    #features = get_arrays(pics)
+    #train(features, labels)
 
 if __name__ == "__main__":
     main()
