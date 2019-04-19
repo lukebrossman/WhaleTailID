@@ -8,6 +8,7 @@ import csv
 import sys
 from PIL import Image
 import os
+import cv2
 
 def createModel(img_row, img_col, num_classes):
     model = Sequential()
@@ -29,14 +30,14 @@ def train(x_train, labels, img_row, img_col, num_classes, sample_size):
     feature_length = 0 - img_row 
     x_test = x_train[feature_length:]
     y_test = labels[-1]
-    x_train = x_train.reshape(sample_size, img_row,img_col,1)
-    x_test = x_test.reshape(1,img_row,img_col,1)
+    x_train = x_train.reshape(sample_size, img_row,img_col,3)
+    x_test = x_test.reshape(1,img_row,img_col,3)
     print(labels, num_classes)
     y_train = keras.utils.to_categorical(labels, num_classes)
     y_test = keras.utils.to_categorical(y_test, num_classes)
           
     model = Sequential()
-    model.add(Conv2D(32, kernel_size=(3,3), activation='relu', input_shape=(img_row,img_col,1)))
+    model.add(Conv2D(32, kernel_size=(3,3), activation='relu', input_shape=(img_row,img_col,3)))
       
     model.add(Conv2D(64,(3,3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2,2)))
@@ -83,17 +84,23 @@ def IterTrain(pictures, labels, img_row, img_col, num_classes, sample_size):
 
 def getFeatureArray(pictures, sample_size, img_row, img_col):
     pic_arr = np.empty([(sample_size * img_row), img_col])
+    pic_ARR2 = []
+    
     os.chdir("./train")
     i = 0
     print("go fuk yourself")
     for pic in pictures[:sample_size]:
         i += 1
-        image = Image.open(pic)
-        image = image.resize((img_row,img_col), Image.ANTIALIAS)
-        arr = np.array(image)
-        arr = rgb2gray(arr)
-        image.close()
-        np.append(pic_arr, arr)
+        image = cv2.imread(pic)
+       # print("image 1: ",image)
+        image = cv2.resize(image,(img_row,img_col))
+        #image = Image.open(pic)
+        #print(image)
+        #image = image.resize((img_row,img_col), Image.ANTIALIAS)
+        #arr = np.array(image)
+        #arr = rgb2gray(arr)
+        #image.close()
+        np.append(pic_arr, image)
         if i % 500 == 0:
             print(i)
 
