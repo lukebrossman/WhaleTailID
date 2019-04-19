@@ -61,13 +61,13 @@ def TrainIteration(feature, label, num_classes, img_row, img_col, model):
     model.fit(feature, label, batch_size=1, epochs=1, verbose=1) #, validation_data=(x_test, y_test)
 
 
-def IterTrain(pictures, labels, img_row, img_col, num_classes):
+def IterTrain(pictures, labels, img_row, img_col, num_classes, sample_size):
     #pic_arr = np.empty([120000, 60])
     os.chdir("./train")
     i = 0
     print("go fuk yourself")
     model = createModel(img_col, img_row, num_classes)
-    for pic,label in zip(pictures[:2000],labels):
+    for pic,label in zip(pictures[:sample_size],labels):
         i += 1
         image = Image.open(pic)
         image = image.resize((img_row,img_col), Image.ANTIALIAS)
