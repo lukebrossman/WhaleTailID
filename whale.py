@@ -82,7 +82,7 @@ def IterTrain(pictures, labels, img_row, img_col, num_classes):
     #return pic_arr
 
 def getFeatureArray(pictures, sample_size, img_row, img_col):
-    pic_arr = np.empty([(sample_size * img_row), 60])
+    pic_arr = np.empty([(sample_size * img_row), img_col])
     os.chdir("./train")
     i = 0
     print("go fuk yourself")
