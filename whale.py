@@ -8,6 +8,7 @@ import csv
 import sys
 from PIL import Image
 import os
+import random
 
 def createModel(img_row, img_col, num_classes):
     model = Sequential()
@@ -25,15 +26,11 @@ def createModel(img_row, img_col, num_classes):
 
     return model
 
-def train(x_train, labels, img_row, img_col, num_classes, sample_size):
-    feature_length = 2*(0 - img_row) 
-    x_test = x_train[feature_length:]
-    y_test = labels[-2:]
-    x_train = x_train.reshape(sample_size, img_row,img_col,1)
-    x_test = x_test.reshape(2,img_row,img_col,1)
-    print(labels, num_classes)
-    y_train = keras.utils.to_categorical(labels, num_classes)
-    y_test = keras.utils.to_categorical(y_test, num_classes)
+def train(trainfeatures, trainlabels, testfeatures, testlabels, img_row, img_col, num_classes, sample_size):
+    trainfeatures = trainfeatures.reshape(sample_size, img_row,img_col,1)
+    testfeatures = testfeatures.reshape(len(testlabels),img_row,img_col,1)
+    trainlabels = keras.utils.to_categorical(trainlabels, num_classes)
+    testlabels = keras.utils.to_categorical(testlabels, num_classes)
           
     model = Sequential()
     model.add(Conv2D(32, kernel_size=(3,3), activation='relu', input_shape=(img_row,img_col,1)))
@@ -48,8 +45,8 @@ def train(x_train, labels, img_row, img_col, num_classes, sample_size):
   
     model.compile(loss=keras.losses.binary_crossentropy, optimizer=keras.optimizers.Adadelta(), metrics=['accuracy'])
   
-    model.fit(x_train, y_train, batch_size=1, epochs=1, verbose=1) #, validation_data=(x_test, y_test)
-    score = model.evaluate(x_test,y_test, verbose=0)
+    model.fit(trainfeatures, trainlabels, batch_size=1, epochs=1, verbose=1) #, validation_data=(x_test, y_test)
+    score = model.evaluate(testfeatures,testlabels, verbose=0)
     print('Test loss:', score[0]) 
     print('Test Accuracy:', score[1])
 
@@ -96,7 +93,7 @@ def getFeatureArray(pictures, sample_size, img_row, img_col):
         np.append(pic_arr, arr)
         if i % 500 == 0:
             print(i)
-
+    os.chdir("..")
     return pic_arr
 
 
@@ -129,10 +126,11 @@ def normalizeLabels(labels):
     print(newlabels)
     return newlabels
 
-def createnewtrainfile(pics, labels):
-    sys.stdout = open("newtrain.csv", "w")
+def createnewfile(pics, labels, file):
+    sys.stdout = open(file, "w")
     for pic, label in zip(pics, labels):
         print(pic+","+str(label))
+    sys.stdout = sys.__stdout__
 
 def SaveModelToJSon(model): #Save and load methods copied from the internet
     model_json = model.to_json()
@@ -152,21 +150,31 @@ def LoadModelFromToJSon():
     print("Loaded model from disk")
     return loaded_model
 
+def TrainTestSplit(data):
+    testData, trainData = [], []
+    for datapoint in data:
+        if random.random() < .001:
+            testData.append(datapoint)
+        else:
+            trainData.append(datapoint)
+    return trainData, testData
+        
+
 def main():
     trainfile = sys.argv[1]
-    #testfile = sys.argv[1]
-    img_col, img_row = 60, 60
+    testfile = sys.argv[2]
+    img_col, img_row = 20, 20
     sample_size = 2000
-    blerble = FileToArray(trainfile)
-    pics = [i[0] for i in blerble]
-    labels = [i[1] for i in blerble]
-    #labels = integerizeclasses(blerble[1:])
-    labels = labels[:sample_size]
-    labels = normalizeLabels(labels)
-    num_classes = len(set(labels))
-    #createnewtrainfile(pics, labels)
-    features = getFeatureArray(pics, sample_size, img_row, img_col)
-    train(features, labels, img_row, img_col, num_classes, sample_size)
+    trainData = FileToArray(trainfile)
+    testData = FileToArray(testfile)
+    testpics = [i[0] for i in testData]
+    testlabels = [i[1] for i in testData]
+    trainpics = [i[0] for i in trainData]
+    trainlabels = [i[1] for i in trainData]
+    num_classes = len(set(trainlabels))
+    testfeatures = getFeatureArray(testpics,len(testlabels), img_row, img_col)
+    trainfeatures = getFeatureArray(trainpics, len(trainlabels), img_row, img_col)
+    train(trainfeatures, trainlabels, testfeatures, testlabels, img_row, img_col, num_classes, len(trainlabels))
 
 if __name__ == "__main__":
     main()
