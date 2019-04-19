@@ -26,11 +26,11 @@ def createModel(img_row, img_col, num_classes):
     return model
 
 def train(x_train, labels, img_row, img_col, num_classes, sample_size):
-    feature_length = 2*(0 - img_row) 
+    feature_length = 0 - img_row 
     x_test = x_train[feature_length:]
-    y_test = labels[-2:]
+    y_test = labels[-1]
     x_train = x_train.reshape(sample_size, img_row,img_col,1)
-    x_test = x_test.reshape(2,img_row,img_col,1)
+    x_test = x_test.reshape(1,img_row,img_col,1)
     print(labels, num_classes)
     y_train = keras.utils.to_categorical(labels, num_classes)
     y_test = keras.utils.to_categorical(y_test, num_classes)
