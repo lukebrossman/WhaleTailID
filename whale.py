@@ -49,6 +49,7 @@ def train(trainfeatures, trainlabels, testfeatures, testlabels, img_row, img_col
     score = model.evaluate(testfeatures,testlabels, verbose=0)
     print('Test loss:', score[0]) 
     print('Test Accuracy:', score[1])
+    return model
 
 def TrainIteration(feature, label, num_classes, img_row, img_col, model):
     feature = feature.reshape(1, img_row,img_col,1)
@@ -134,14 +135,14 @@ def createnewfile(pics, labels, file):
 
 def SaveModelToJSon(model): #Save and load methods copied from the internet
     model_json = model.to_json()
-    with open(".\model.json", "w") as json_file:
+    with open("./model.json", "w") as json_file:
         json_file.write(model_json)
 
     model.save_weights("./model.h5")
     print("Saved model to disk")
 
 def LoadModelFromToJSon():
-    json_file = open('.\model.json', 'r')
+    json_file = open('./model.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     loaded_model = keras.models.model_from_json(loaded_model_json)
@@ -163,7 +164,7 @@ def TrainTestSplit(data):
 def main():
     trainfile = sys.argv[1]
     testfile = sys.argv[2]
-    img_col, img_row = 20, 20
+    img_col, img_row = 60, 60
     sample_size = 2000
     trainData = FileToArray(trainfile)
     testData = FileToArray(testfile)
@@ -174,7 +175,9 @@ def main():
     num_classes = len(set(trainlabels))
     testfeatures = getFeatureArray(testpics,len(testlabels), img_row, img_col)
     trainfeatures = getFeatureArray(trainpics, len(trainlabels), img_row, img_col)
-    train(trainfeatures, trainlabels, testfeatures, testlabels, img_row, img_col, num_classes, len(trainlabels))
+    model = train(trainfeatures, trainlabels, testfeatures, testlabels, img_row, img_col, num_classes, len(trainlabels))
+    SaveModelToJSon(model)
+
 
 if __name__ == "__main__":
     main()
