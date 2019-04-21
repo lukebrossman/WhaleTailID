@@ -92,8 +92,7 @@ def getFeatureArray(pictures, sample_size, img_row, img_col):
         arr = rgb2gray(arr)
         image.close()
         np.append(pic_arr, arr)
-        if i % 500 == 0:
-            print(i)
+        print(i)
     os.chdir("..")
     return pic_arr
 
@@ -153,9 +152,14 @@ def LoadModelFromToJSon():
 
 def TrainTestSplit(data):
     testData, trainData = [], []
+    trainIDs = [i[1] for i in data]
     for datapoint in data:
-        if random.random() < .001:
-            testData.append(datapoint)
+        if random.random() < .01:
+            if trainIDs.count(datapoint[1]) > 1:
+                testData.append(datapoint)
+                trainIDs.remove(datapoint[1])
+            else:
+                trainData.append(datapoint)
         else:
             trainData.append(datapoint)
     return trainData, testData
@@ -164,15 +168,23 @@ def TrainTestSplit(data):
 def main():
     trainfile = sys.argv[1]
     testfile = sys.argv[2]
-    img_col, img_row = 60, 60
+    img_col, img_row = 100, 100
     sample_size = 2000
     trainData = FileToArray(trainfile)
     testData = FileToArray(testfile)
+    trainData, testData = TrainTestSplit(trainData)
     testpics = [i[0] for i in testData]
     testlabels = [i[1] for i in testData]
     trainpics = [i[0] for i in trainData]
     trainlabels = [i[1] for i in trainData]
     num_classes = len(set(trainlabels))
+    #num_classestest = len(set(testlabels))
+    #print(num_classes, num_classestest)
+    """if num_classes == 5005:
+        createnewfile(trainpics, trainlabels, "./newtrain.csv")
+        createnewfile(testpics, testlabels, "./test.csv")
+    """
+
     testfeatures = getFeatureArray(testpics,len(testlabels), img_row, img_col)
     trainfeatures = getFeatureArray(trainpics, len(trainlabels), img_row, img_col)
     model = train(trainfeatures, trainlabels, testfeatures, testlabels, img_row, img_col, num_classes, len(trainlabels))
